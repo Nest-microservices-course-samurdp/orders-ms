@@ -1,0 +1,25 @@
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  entrypoint: 'bash'
+  args:
+    - -c
+    - |
+      docker build -t us-east4-docker.pkg.dev/pivotal-data-437717-t8/image-registry/orders-ms \
+      -f dockerfile.prod \
+      --platform=linux/amd64 \
+      --build-arg ORDERS_DATABASE_URL=$$ORDERS_DATABASE_URL .
+  secretEnv: ['ORDERS_DATABASE_URL']
+
+- name: 'gcr.io/cloud-builders/docker'
+  args:
+    [
+      'push',
+      'us-east4-docker.pkg.dev/pivotal-data-437717-t8/image-registry/orders-ms',
+    ]
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+availableSecrets:
+  secretManager:
+  - versionName: projects/1067950878117/secrets/ORDERS_DATABASE_URL/versions/1
+    env: 'ORDERS_DATABASE_URL'
